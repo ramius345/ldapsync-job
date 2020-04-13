@@ -1,0 +1,36 @@
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: ldapsync-config-file
+data:
+  ldapsync_config.yaml: |-
+    kind: LDAPSyncConfig
+    apiVersion: v1
+    url: "{{ ldap_params.url }}"
+    bindDN: "{{ ldap_params.bind_dn }}"
+    bindPassword:
+      file: /ldapsync-password/ldapsync-password.txt
+{% if ldap_params.ca_cert is defined %}
+    ca: /ldapsync-config/cacert.pem
+{% endif %}
+    insecure: {{ ldap_params.insecure }}
+    augmentedActiveDirectory:
+        groupsQuery: 
+            derefAliases: never
+            pageSize: 512
+        groupUIDAttribute: dn 
+        groupNameAttributes: [ cn ] 
+        usersQuery:
+            baseDN: "{{ ldap_params.user_base_dn }}"
+            scope: sub
+            derefAliases: never
+            filter: "{{ ldap_params.user_filter }}"
+            pageSize: 512
+        userNameAttributes: [ "{{ ldap_params.user_name_attribute }}" ] 
+        groupMembershipAttributes: [ "memberOf:1.2.840.113556.1.4.1941:" , "memberOf"] 
+{% if ldap_params.ca_cert is defined %}
+  cacert.pem: |-
+    {{ ldap_params.ca_cert | indent( width=4, indentfirst=False) }}
+{% endif %}
+
+    

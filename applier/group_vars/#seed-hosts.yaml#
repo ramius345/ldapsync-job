@@ -1,0 +1,63 @@
+ldapsync_namespace: ldapsync
+interval_minutes: 10
+dryrun: true
+ldap_params:
+  url: ldap://some.fqdn.example.com:389
+  insecure: "false"
+  bind_dn: "CN=someserviceaccount,OU=Service Accounts,DC=example,DC=com"
+  bind_secret: "password"
+  ca_cert: |-
+    -----BEGIN CERTIFICATE-----
+    MIIFYTCCBEmgAwIBAgISA0i6oXeOvkThpgWtw9LkH35wMA0GCSqGSIb3DQEBCwUA
+    MEoxCzAJBgNVBAYTAlVTMRYwFAYDVQQKEw1MZXQncyBFbmNyeXB0MSMwIQYDVQQD
+    ExpMZXQncyBFbmNyeXB0IEF1dGhvcml0eSBYMzAeFw0yMDA0MDExNTI1MTNaFw0y
+    MDA2MzAxNTI1MTNaMB8xHTAbBgNVBAMTFHJhbWl1cy5jcmFiZGFuY2UuY29tMIIB
+    IjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAzytQr3lcJ+qeIkr8f7BxASYW
+    F4d9iwquF7IAwOhy3Cve5YM9g2uRt0382VO4uPEIRgm0fahuj8lrJ8wD7yVAuLV8
+    HTT6WhE76RCbAZLmNoKChcikwXgTh9GM5kr6nUlH5KiYQkr+jAMuK1JBnPbw43Uz
+    cK6SZplFF8KujaG7wFirWt1Wa1IExeo1kbYZopNuBHv4F1NkaL7t48ecV28M2mui
+    eUjzhW/c7tQpbb/m7hWZ0pUT3g7imAlPeTXY4bnslht68d4zg8MgK9lPnbedCvlg
+    lQUM8/m4jKLBDq807bTulfIR7OxHBPdKxOv2vdcqW9lH6qDLDtrkBE7inAmh8QID
+    AQABo4ICajCCAmYwDgYDVR0PAQH/BAQDAgWgMB0GA1UdJQQWMBQGCCsGAQUFBwMB
+    BggrBgEFBQcDAjAMBgNVHRMBAf8EAjAAMB0GA1UdDgQWBBR4zMm0BgoWnl+KzAXB
+    IjrPBNm9rzAfBgNVHSMEGDAWgBSoSmpjBH3duubRObemRWXv86jsoTBvBggrBgEF
+    BQcBAQRjMGEwLgYIKwYBBQUHMAGGImh0dHA6Ly9vY3NwLmludC14My5sZXRzZW5j
+    cnlwdC5vcmcwLwYIKwYBBQUHMAKGI2h0dHA6Ly9jZXJ0LmludC14My5sZXRzZW5j
+    cnlwdC5vcmcvMB8GA1UdEQQYMBaCFHJhbWl1cy5jcmFiZGFuY2UuY29tMEwGA1Ud
+    IARFMEMwCAYGZ4EMAQIBMDcGCysGAQQBgt8TAQEBMCgwJgYIKwYBBQUHAgEWGmh0
+    dHA6Ly9jcHMubGV0c2VuY3J5cHQub3JnMIIBBQYKKwYBBAHWeQIEAgSB9gSB8wDx
+    AHcAb1N2rDHwMRnYmQCkURX/dxUcEdkCwQApBo2yCJo32RMAAAFxNo+cMwAABAMA
+    SDBGAiEAp0bZR7q+MAkDVXU6toJvyRsqjNaO617VJR559yqGH5ECIQDJIJZ05Pwm
+    Xz+M6wwDtq1wPOoXMZ7Rdy2ZYxW6YNypPQB2ALIeBcyLos2KIE6HZvkruYolIGdr
+    2vpw57JJUy3vi5BeAAABcTaPnfMAAAQDAEcwRQIhAPtUErkq8IqxokJ6+BgchWPz
+    4Hp5UrSriX+vaCKWSNjDAiB+zd9botJQXDUYwDetgpartBaS3qOcAMjvmQA+BBxY
+    MjANBgkqhkiG9w0BAQsFAAOCAQEAHAVMYaOZ68x7otJi7Y2UnJSZkcXSJEjFESY8
+    K6X/KH2f3I7eJQYXX5arHldXb0qLcNEAc1xr47MyiLREnR3MekFFwHGFN0RCnIiM
+    72RH+ze0ABCvrvYRJwziQD7KunZBxZh78wT6WYzjks2Mg7+gO56a4n32BNY0ooOi
+    Ars0PGemNoU6uabeRrywMMaG7F6Q0wks4adtEo8ycGT0VPIH2/Cwe89TcAi2uBLB
+    +IjI/KMOTkmdMzbHCm3TR4yWo4QWt7Ctyp1vln57knJ5zgOA50wLCVgYSlHbNNlo
+    kmEr7GPZPdlhp4ZgKMVbZnA9ixAS7o1Mmljd0G7IJti+Mtaz6g==
+    -----END CERTIFICATE-----
+  user_base_dn: "OU=Development,OU=Users,DC=example,DC=com"
+  user_filter: "(objectclass=user)"
+  user_name_attribute: sAMAccountName
+openshift_cluster_content:
+  - object: LDAP Sync Job
+    content:
+      - name: Openshift LDAP Sync project
+        file: "{{ inventory_dir}}/../templates/ldap_sync_project.yaml.j2"
+      - name: Openshift LDAP Sync configuration config map
+        file: "{{ inventory_dir }}/../templates/ldap_sync_config_cm.yaml.j2"
+        namespace: "{{ ldapsync_namespace }}"
+      - name: Openshift LDAP Sync password secret
+        file: "{{ inventory_dir }}/../templates/ldap_sync_password_secret.yaml.j2"
+        namespace: "{{ ldapsync_namespace }}"
+      - name: Openshift LDAP Sync service account
+        file: "{{ inventory_dir }}/../templates/ldap_sync_service_account.yaml.j2"
+        namespace: "{{ ldapsync_namespace }}"
+      - name: Openshift LDAP Sync role binding
+        file: "{{ inventory_dir }}/../templates/ldap_sync_role_binding.yaml.j2"
+        namespace: "{{ ldapsync_namespace }}"
+      - name: LDAP Sync Cron Job Definition
+        file: "{{ inventory_dir }}/../templates/ldap_sync_cronjob.yaml.j2"
+        namespace: "{{ ldapsync_namespace }}"

@@ -1,0 +1,40 @@
+apiVersion: batch/v1beta1
+kind: CronJob
+metadata:
+  name: ldapsync
+spec:
+  schedule: "*/{{ interval_minutes }} * * * *"
+  jobTemplate:
+    spec:
+      template:
+        metadata:
+          labels:
+            parent: "ldapsync-job"
+        spec:
+          serviceAccount: ldapsync
+          volumes:
+          - name: ldapsync-config
+            configMap:
+              name: ldapsync-config-file
+          - name: ldapsync-password
+            secret:
+              secretName: ldapsync-password
+          containers:
+          - name: ldapsync
+            image: quay.io/tpetersh/oc-client-container
+            command:
+              - /usr/local/bin/oc
+              - adm
+              - groups
+              - sync
+              - --sync-config=/ldapsync-config/ldapsync_config.yaml
+{% if dryrun != false %}
+              - --confirm
+{% endif %}
+            volumeMounts:
+              - name: ldapsync-config
+                mountPath: /ldapsync-config
+              - name: ldapsync-password
+                mountPath: /ldapsync-password
+          restartPolicy: OnFailure
+
